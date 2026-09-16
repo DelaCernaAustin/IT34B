@@ -1,32 +1,27 @@
 <?php
+session_start();
 
-$host = 'localhost';
-$dbname = 'it34b_lab_db';
-$username = 'root';
-$password = '';
+require_once __DIR__ . '/../includes/activity-logger.php';
 
-try {
+define('BASE_URL', 'http://localhost/IT34B');
 
+// When true, any email/username and password will authenticate as admin
+define('ALLOW_ANY_LOGIN', true);
+
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'it34b_lab_db');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+
+try{
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password
-    );
+        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+     );
+    
 
-    $pdo->setAttribute(
-        PDO::ATTR_ERRMODE,
-        PDO::ERRMODE_EXCEPTION
-    );
-
-    $pdo->setAttribute(
-        PDO::ATTR_DEFAULT_FETCH_MODE,
-        PDO::FETCH_ASSOC
-    );
-
-} catch (PDOException $e) {
-
-    die(
-        "Database connection failed: " .
-        htmlspecialchars($e->getMessage())
-    );
+}catch(PDOException $e){
+    die("Database connection failed: " . $e->getMessage());
 }
+
+?>
