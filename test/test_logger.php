@@ -1,43 +1,17 @@
 <?php
-    function logActivity($pdo, $user_id, $user_email, $action, $status= 'success') {
-        try{
-            //Get Client IP Address
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+require_once('config/config.php');
 
-            //String to Array
-            if(strpos($ip, ',') !== false) {
-                $ip = trim(explode(',', $ip)[0]);
-            }
+$user_id = "root" ?? null;
+$user_email = "root" ?? null;
 
-            //Get user Agent
-            $user_agent = substr($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown', 0, 255);
+$success = LogActivity($pdo,$user_id,$user_email,'test_activity', 'success');
 
-            //Application Query #1
-            $stmt = $pdo -> prepare("
-            INSERT INTO activity_logs (
-            user_id, 
-            user_email, 
-            activity_log_action,
-            activity_log_status,
-            activity_log_ip_address,
-            activity_log_user_agent
-            ) VALUES (?,?,?,?,?,?)
-            "); 
 
-            $success = $stmt->execute([
-                $user_id,
-                $user_email,
-                $action,
-                $status,
-                $ip,
-                $user_agent
-            ]);
+    if ($success ){
+    echo "Activity Log inserted successfully"; 
+}else{
 
-            return $success;
+    echo "Failed to insert activity log";
+}
 
-        } catch (PDOException $e){
-            error_log("Failed to log activity: " . $e->getMessage());
-            return false;
-        }
-    }
 ?>

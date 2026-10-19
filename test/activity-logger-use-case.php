@@ -1,43 +1,77 @@
 <?php
-    function logActivity($pdo, $user_id, $user_email, $action, $status= 'success') {
-        try{
-            //Get Client IP Address
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
 
-            //String to Array
-            if(strpos($ip, ',') !== false) {
-                $ip = trim(explode(',', $ip)[0]);
-            }
+require_once('config/config.php');
 
-            //Get user Agent
-            $user_agent = substr($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown', 0, 255);
+$user_id = "root" ?? null;
+$user_email = "root" ?? null;
 
-            //Application Query #1
-            $stmt = $pdo -> prepare("
-            INSERT INTO activity_logs (
-            user_id, 
-            user_email, 
-            activity_log_action,
-            activity_log_status,
-            activity_log_ip_address,
-            activity_log_user_agent
-            ) VALUES (?,?,?,?,?,?)
-            "); 
+$buttons = [
+    'Login',
+    'Logout',
+    'Create Record',
+    'Update Record',
+    'Delete Record',
+    'View Record',
+    'Upload File',
+    'Download',
+    'Generate Report'
+];
+?>
 
-            $success = $stmt->execute([
-                $user_id,
-                $user_email,
-                $action,
-                $status,
-                $ip,
-                $user_agent
-            ]);
+<table border="1" cellpadding="10">
+    <tr>
+        <th>Action</th>
+        <th>Test</th>
+    </tr>
 
-            return $success;
+    <?php foreach ($buttons as $button): ?>
+        <tr>
+            <td><?= htmlspecialchars($button) ?></td>
 
-        } catch (PDOException $e){
-            error_log("Failed to log activity: " . $e->getMessage());
-            return false;
+            <td>
+                <form method="POST">
+                    <input 
+                        type="hidden"  name="action"
+                         value="<?= htmlspecialchars($button) ?>"
+                    >
+
+                    <button type="submit">Test</button>
+                </form>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+
+</table>
+
+<?php
+If($_SERVER['REQUEST_METHOD'] === 'POST'){
+        $action = $_POST ['action'] ?? "test_activity";
+
+       $status = 'success';
+
+        $success =  LogActivity(
+            $pdo,
+            $user_id,
+            $user_email,
+            $action,
+            $status,
+
+
+
+        );
+
+        if ($success){
+
+        echo "<p>Activity: " . htmlspecialchars($action) .
+                " Status: " . htmlspecialchars($status) .
+                "Log inserted sucessfully </p>";
+
+        }else{
+            echo "<p>failed to insert activity log</p>";
+
         }
-    }
+
+}
+
+
 ?>
